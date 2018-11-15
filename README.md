@@ -43,7 +43,7 @@ i18next 'app/**/*.{js,hbs}' 'lib/**/*.{js,hbs}' [-oc]
 
 Multiple globbing patterns are supported to specify complex file selections. You can learn how to write globs [here](https://github.com/isaacs/node-glob). Note that glob must be wrapped with single quotes when passed as arguments.
 
-**IMPORTANT NOTE**: If you pass the globs as CLI argument, they must be relative to where you run the command (aka relative to `process.cwd()`). If you pass the globs via the `input` option of the config file, they must be relative to the config file. 
+**IMPORTANT NOTE**: If you pass the globs as CLI argument, they must be relative to where you run the command (aka relative to `process.cwd()`). If you pass the globs via the `input` option of the config file, they must be relative to the config file.
 
 - **-c, --config <path>**: Path to the config file (default: i18next-parser.config.js).
 - **-o, --output <path>**: Path to the output directory (default: locales/$LOCALE/$NAMESPACE.json).
@@ -199,9 +199,7 @@ translation functions. If your code uses features not supported natively by Acor
 `yarn` or `npm`; they are not included in this package. This is an example configuration that adds all non-jsx plugins supported by acorn
 at the time of writing:
 ```javascript
-const injectAcornStaticClassPropertyInitializer = require('acorn-static-class-property-initializer/inject');
-const injectAcornStage3 = require('acorn-stage3/inject');
-const injectAcornEs7 = require('acorn-es7');
+const acornStage3 = require('acorn-stage3');
 
 // ...
   js: [{
@@ -211,18 +209,8 @@ const injectAcornEs7 = require('acorn-es7');
     // acorn config (for more information on the acorn options, see here: https://github.com/acornjs/acorn#main-parser)
     acorn: {
       injectors: [
-          injectAcornStaticClassPropertyInitializer,
-          injectAcornStage3,
-          injectAcornEs7,
-        ],
-      plugins: {
-        // The presence of these plugin options is important -
-        // without them, the plugins will be available but not
-        // enabled.
-        staticClassPropertyInitializer: true,
-        stage3: true,
-        es7: true,
-      }
+          acornStage3,
+      ],
     }
   }],
 // ...

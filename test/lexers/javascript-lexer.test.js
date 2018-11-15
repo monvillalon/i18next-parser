@@ -1,7 +1,6 @@
 import { assert, expect } from 'chai'
 import { spy } from 'sinon'
-import stage3Injector from 'acorn-stage3/inject'
-import es7Injector from 'acorn-es7'
+import stage3Injector from 'acorn-stage3'
 
 import JavascriptLexer from '../../src/lexers/javascript-lexer'
 
@@ -115,15 +114,6 @@ describe('JavascriptLexer', () => {
     })
     const content = 'import("path/to/some/file").then(doSomethingWithData)'
     Lexer.extract(content)
-    done()
-  })
-
-  it('supports the acorn-es7 plugin', (done) => {
-    const Lexer = new JavascriptLexer({ acorn: { injectors: [es7Injector], plugins: { es7: true } } })
-    const content = '@decorator() class Test { test() { t("foo") } }'
-    assert.deepEqual(Lexer.extract(content), [
-      { key: 'foo' }
-    ])
     done()
   })
 

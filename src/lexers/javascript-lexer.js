@@ -1,5 +1,5 @@
 import * as acorn from 'acorn'
-import * as walk from 'acorn/dist/walk'
+import * as walk from 'acorn-walk'
 import BaseLexer from './base-lexer'
 
 const WalkerBase = Object.assign({}, walk.base, {
@@ -14,11 +14,10 @@ export default class JavascriptLexer extends BaseLexer {
 
     this.acornOptions = {
       sourceType: 'module',
-      ecmaVersion: 9,
+      ecmaVersion: 10,
       injectors: [],
-      plugins: {},
       ...options.acorn,
-    }
+    };
 
     this.functions = options.functions || ['t']
     this.attr = options.attr || 'i18nKey'
@@ -26,18 +25,18 @@ export default class JavascriptLexer extends BaseLexer {
     this.acorn = acorn
     this.WalkerBase = WalkerBase
 
-    // Apply all injectors to the acorn instance
-    this.acornOptions.injectors.reduce(
-      (acornInstance, injector) => injector(acornInstance),
-      this.acorn
-    )
+    // Apply all injectors to the acorn parser
+    this.parser = acorn.Parser;
+    if (this.acornOptions.injectors && this.acornOptions.injectors.length) {
+      this.parser = this.parser.extend(...this.acornOptions.injectors);
+    }
   }
 
   extract(content) {
     const that = this
 
     walk.simple(
-      this.acorn.parse(content, this.acornOptions),
+      this.parser.parse(content, this.acornOptions),
       {
         CallExpression(node) {
           that.expressionExtractor.call(that, node)

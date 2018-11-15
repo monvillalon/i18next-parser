@@ -1,5 +1,5 @@
 import JavascriptLexer from './javascript-lexer'
-import * as walk from 'acorn/dist/walk'
+import * as walk from 'acorn-walk';
 
 const JSXParserExtension = {
   JSXText(node, st, c) {
@@ -7,6 +7,9 @@ const JSXParserExtension = {
   },
   JSXEmptyExpression(node, st, c) {
     // We need this catch, but we don't need the catch to do anything.
+  },
+  JSXFragment(node, st, c) {
+    node.children.forEach(child => c(child, st, child.type));
   },
   JSXElement(node, st, c) {
     node.openingElement.attributes.forEach(attr => c(attr, st, attr.type))
@@ -30,14 +33,13 @@ export default class JsxLexer extends JavascriptLexer {
     super(options)
 
     // super will setup acornOptions, acorn and the walker, just add what we need
-    this.acornOptions.plugins.jsx = true
     this.WalkerBase = Object.assign({}, this.WalkerBase, {
       ...JSXParserExtension
     })
 
     try {
-      const injectAcornJsx = require('acorn-jsx/inject')
-      this.acorn = injectAcornJsx(this.acorn)
+      const jsx = require('acorn-jsx');
+      this.parser = this.parser.extend(jsx());
     } catch (e) {
       throw new Error(
         'You must install acorn-jsx to parse jsx files. ' +
@@ -50,7 +52,7 @@ export default class JsxLexer extends JavascriptLexer {
     const that = this
 
     walk.simple(
-      this.acorn.parse(content, this.acornOptions),
+      this.parser.parse(content, this.acornOptions),
       {
         CallExpression(node) {
           that.expressionExtractor.call(that, node)
